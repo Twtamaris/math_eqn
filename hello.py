@@ -7,7 +7,6 @@ image = cv2.resize(image, (500, 500))
 
 # Threshold the image to create a binary image
 _, binary_image = cv2.threshold(image, 128, 255, cv2.THRESH_BINARY)
-print(binary_image)
 
 # Invert the binary image (make digits/symbols black on white)
 inverted_image = cv2.bitwise_not(binary_image)
@@ -19,19 +18,16 @@ contours, _ = cv2.findContours(inverted_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPR
 image_with_rectangles = image.copy()
 
 # Define a minimum contour area threshold to filter out small contours (adjust as needed)
-min_contour_area = 0 # Adjust this threshold
+min_contour_area = 3 # Adjust this threshold
+
+rectangle = []
 
 # Loop through the contours and draw bounding rectangles
 for contour in contours:
-    
     if cv2.contourArea(contour) > min_contour_area:
         x, y, w, h = cv2.boundingRect(contour)
-
-        hehe = cv2.rectangle(image_with_rectangles, (x, y), (x + w+200, y + h+200), (0, 255, 0), 2)
-        
-        
-
-# Merge overlapping bounding rectangles (your merge_overlapping_rectangles function)
+        rectangle.append((x, y, w, h))
+        cv2.rectangle(image_with_rectangles, (x, y), (x + w, y + h), (0, 255, 0), 2)
 
 # Define the merge_overlapping_rectangles function
 def merge_overlapping_rectangles(rectangles):
@@ -52,30 +48,43 @@ def merge_overlapping_rectangles(rectangles):
     return merged_rectangles
 
 # Extract bounding rectangles from contours
-bounding_rectangles = [cv2.boundingRect(contour) for contour in contours]
+bounding_rectangles = rectangle
 
 # Merge overlapping bounding rectangles
 merged_rectangles = merge_overlapping_rectangles(bounding_rectangles)
 
 
-# Extract bounding rectangles from contours
-bounding_rectangles = [cv2.boundingRect(contour) for contour in contours]
 
-# Merge overlapping bounding rectangles
-merged_rectangles = merge_overlapping_rectangles(bounding_rectangles)
-
-# Create a copy of the original image for drawing merged bounding rectangles
+# Draw merged rectangles on a copy of the original image
 image_with_merged_rectangles = image.copy()
 
-# Draw the merged bounding rectangles
-for x, y, w, h in merged_rectangles:
-    cv2.rectangle(image_with_merged_rectangles, (x, y), (x + w, y + h), (0, 255, 0), 2)
+for i, rect in enumerate(merged_rectangles):
+    x, y, w, h = rect
+    cv2.rectangle(image_with_merged_rectangles, (x,y), (x+w,y+h), (0,255,0), 2)
+    
 
-# Display the images
+merged_rectangles.sort()
+
+print('This is merged_rect' ,merged_rectangles)
+
+for i,(x,y,w,h) in enumerate(merged_rectangles):
+    # Extract the portion of the image
+    crop_image = image[y:y+h, x:x+w]
+    cv2.imwrite(f'crop_images/{i}.png', crop_image)
+
+
+
+
+
+for rect in merged_rectangles:
+    x, y, w, h = rect
+    cv2.rectangle(image_with_merged_rectangles, (x,y), (x+w,y+h), (0,255,0), 2)
+
+
+
+# # Display the images
 # cv2.imshow("Original Image", image)
 # cv2.imshow("Inverted Image with Contours", image_with_rectangles)
-# cv2.imshow("Inverted Image with Merged Rectangles", image_with_merged_rectangles)
-print("This is countour", contours)
-# cv2.imshow("Binary_image", inverted_image)
+cv2.imshow("Inverted Image with Merged Rectangles", image_with_merged_rectangles)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
