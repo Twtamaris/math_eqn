@@ -5,7 +5,7 @@ from keras.models import load_model
 from sklearn.preprocessing import LabelEncoder
 le = LabelEncoder()
 
-path = 'Extracted_images'
+path = 'extracted_images'
 folders = []
 for folder in os.listdir(path):
     folders.append(folder)
@@ -15,7 +15,7 @@ labels = le.fit_transform(folders)
 
 
 # Load the model
-model = load_model('model.h5')
+model = load_model('model1.h5')
 path = 'crop_images'
 file_names = os.listdir(path)
 for file_ in file_names:
@@ -28,6 +28,7 @@ for file_ in file_names:
         image = image.astype('float32')/255  # Normalized pixel values to [0,1]
         pred = model.predict(image)  # Corrected variable name
         pred = np.argmax(pred)
+        
 
         print(f"This is the {le.inverse_transform([pred])} symbol")
         
