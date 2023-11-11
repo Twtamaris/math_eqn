@@ -126,7 +126,6 @@ def predict():
 
             
 
-            
 
             
             # convert the list to string
